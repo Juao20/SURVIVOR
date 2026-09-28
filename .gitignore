@@ -1,5 +1,8 @@
 # Build outputs (Windows/Linux desktop)
 /build/
+/Survivor
+/Survivor.exe
+/survivor.exe
 /bttf_shooter
 /bttf_shooter.exe
 /dist/
@@ -10,6 +13,9 @@
 /android_build/Survivor.apk
 /android_build/Survivor.apk.idsig
 /android_build/survivor.keystore
+
+# Web/Emscripten build (emsdk toolchain + generated output — not vendored)
+/web_build/
 
 # OS / editor cruft
 Thumbs.db

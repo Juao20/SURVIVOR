@@ -1,4 +1,4 @@
-# BTTF CPP - Top Down Shooter Makefile
+# Survivor - Top Down Shooter Makefile
 
 # Compiler
 CXX = g++
@@ -19,7 +19,7 @@ BUILD_DIR = build
 INCLUDE_DIR = include
 
 # Target
-TARGET = bttf_shooter$(TARGET_EXT)
+TARGET = Survivor$(TARGET_EXT)
 
 # Source files
 SRCS = $(SRC_DIR)/main.cpp
@@ -69,7 +69,7 @@ run: all
 
 # Help
 help:
-	@echo "$(YELLOW)BTTF CPP - Top Down Shooter$(NC)"
+	@echo "$(YELLOW)Survivor - Top Down Shooter$(NC)"
 	@echo ""
 	@echo "Available targets:"
 	@echo "  $(GREEN)all$(NC)     - Build the game (default)"

@@ -219,9 +219,11 @@ public:
     ~Game();
     void init();
     void run();
+    void frameStep();
     void cleanup();
     GameState getState() const { return currentState; }
     Player*   getPlayer() const { return player.get(); }
+    bool      getIsRunning() const { return isRunning; }
 
 private:
     void buildArena();
@@ -396,23 +398,50 @@ void Game::buildArena() {
     obstacles.push_back({W-550,H-340,60,60});
 }
 
+void Game::frameStep() {
+    // Mise à jour scale chaque frame — gère resize ET fullscreen toggle
+    scale.update(GetScreenWidth(), GetScreenHeight());
+    deltaTime=GetFrameTime();
+    if(deltaTime>0.05f) deltaTime=0.05f;
+    gameTime+=deltaTime;
+
+    // Update musiques de fond
+    UpdateMusicStream(spriteManager->getMusic("menu_theme"));
+    UpdateMusicStream(spriteManager->getMusic("boss_theme"));
+    UpdateMusicStream(spriteManager->getMusic("game_over"));
+    UpdateMusicStream(spriteManager->getMusic("victory"));
+
+    update();
+    draw();
+}
+
+#if defined(PLATFORM_WEB)
+#include <emscripten/emscripten.h>
+static void webFrameTrampoline(void* arg) {
+    Game* g = static_cast<Game*>(arg);
+    if (!g->getIsRunning()) { emscripten_cancel_main_loop(); return; }
+    g->frameStep();
+}
+#endif
+
 void Game::run() {
+#if defined(PLATFORM_WEB)
+    // The browser owns the loop (requestAnimationFrame) — a blocking while()
+    // loop would freeze the tab, and emulating one via -sASYNCIFY is what
+    // caused raylib's web audio callback to intermittently read a detached
+    // buffer and hang the whole run loop. Handing the loop to Emscripten
+    // avoids that entirely.
+    // simulate_infinite_loop=1: no code after this call runs (main() never
+    // "returns" as far as the WASM module lifetime is concerned), which is
+    // required here since `game` lives on main()'s stack and the browser's
+    // callback keeps calling frameStep() on it long after run() itself
+    // returns control to the browser event loop.
+    emscripten_set_main_loop_arg(webFrameTrampoline, this, 0, /*simulate_infinite_loop=*/1);
+#else
     while (!WindowShouldClose() && isRunning) {
-        // Mise à jour scale chaque frame — gère resize ET fullscreen toggle
-        scale.update(GetScreenWidth(), GetScreenHeight());
-        deltaTime=GetFrameTime();
-        if(deltaTime>0.05f) deltaTime=0.05f;
-        gameTime+=deltaTime;
-        
-        // Update musiques de fond
-        UpdateMusicStream(spriteManager->getMusic("menu_theme"));
-        UpdateMusicStream(spriteManager->getMusic("boss_theme"));
-        UpdateMusicStream(spriteManager->getMusic("game_over"));
-        UpdateMusicStream(spriteManager->getMusic("victory"));
-        
-        update();
-        draw();
+        frameStep();
     }
+#endif
 }
 
 void Game::setState(GameState s) {

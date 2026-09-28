@@ -1,0 +1,17 @@
+# Build outputs (Windows/Linux desktop)
+/build/
+/bttf_shooter
+/bttf_shooter.exe
+/dist/
+
+# Android build (generated artifacts + vendored upstream raylib source)
+/android_build/build/
+/android_build/raylib/
+/android_build/Survivor.apk
+/android_build/Survivor.apk.idsig
+/android_build/survivor.keystore
+
+# OS / editor cruft
+Thumbs.db
+.DS_Store
+*.swp
